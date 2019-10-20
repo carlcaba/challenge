@@ -67,6 +67,24 @@ namespace ExperisChallenge
             List<Position> OrderedMatrix = Matrix.OrderByDescending(m => m.value).ToList();
             foreach (Position pos in OrderedMatrix)
             {
+				//Get the result so far
+                Results FR = Result.OrderByDescending(r => r.Steps).ThenByDescending(r => r.Drop).FirstOrDefault();
+                if (FR != null)
+                {
+                    if (FR.Drop > pos.value)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    FR = new Results();
+                }
+				//If value is less than result's drop
+				if (pos.value <= FR.Drop)
+                {
+                    break;
+                }
                 //Gets all weights, if not defined
                 if (pos.GetAllWeights)
                 {
@@ -79,13 +97,30 @@ namespace ExperisChallenge
                 foreach (Weight weight in pos.weight.OrderBy(w => w.value))
                 {
                     Results path = new Results();
+					//If has a drop and weight value is greater 
+                    if (FR.Drop > 0 && weight.value >= FR.Drop)
+                    {
+                        continue;
+                    }
+					//Process position
                     OrderedMatrix.AddStep(pos, weight, max, ref path, true);
-                    Result.Add(path);
+					//If path has more steps 
+                    if (path.Steps >= FR.Steps)
+                    {
+                        Result.Add(path);
+                        Console.WriteLine("Max: " + string.Join(" => ", FR.trace.Select(x => x.value.ToString()).ToArray()));
+                        Console.WriteLine("Max Steps: " + FR.Steps);
+                        Console.WriteLine("Max Drop: " + FR.Drop);
+                    }
+                    Console.WriteLine("Current: " + string.Join(" => ", path.trace.Select(x => x.value.ToString()).ToArray()));
+                    Console.WriteLine("Current Position: " + pos.value);
+                    Console.WriteLine("Current Steps: " + path.Steps);
+                    Console.WriteLine("Current Drop: " + path.Drop);
                 }
             }
 
             //Print the results
-            Results FinalResult = Result.OrderByDescending(r => r.Drop).ThenByDescending(r => r.Steps).FirstOrDefault();
+            Results FinalResult = Result.OrderByDescending(r => r.Steps).ThenByDescending(r => r.Drop).FirstOrDefault();
             Console.WriteLine(string.Join(" => ", FinalResult.trace.Select(x => x.value.ToString()).ToArray()));
             Console.WriteLine("Steps: " + FinalResult.Steps);
             Console.WriteLine("Drop: " + FinalResult.Drop);

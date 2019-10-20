@@ -85,10 +85,17 @@ namespace ExperisChallenge
         {
             get
             {
-                return this.trace.Count();
+                int result = 0;
+                if (this.trace != null)
+                {
+                    result = this.trace.Count();
+                }
+                return result;
             }
         }
-
+        /// <summary>
+        /// Property to calculate drop
+        /// </summary>
         public int Drop
         {
             get
@@ -194,6 +201,15 @@ namespace ExperisChallenge
                 item.weight.Add(new Weight { direction = "E", value = result.Value, row = item.row, column = item.column + 1 });
             }
         }
+        /// <summary>
+        /// Recursively function to find a path
+        /// </summary>
+        /// <param name="list">Reference to object</param>
+        /// <param name="initial">Initial position</param>
+        /// <param name="lead">Direction to follow</param>
+        /// <param name="max">Maximum items (matrix dimension)</param>
+        /// <param name="result">By reference: List of position to trace</param>
+        /// <param name="starter">Defines if function is called recursively</param>
         public static void AddStep(this List<Position> list, Position initial, Weight lead, string[] max, ref Results result, bool starter = false)
         {
             //Gets all weights, if not defined
@@ -230,40 +246,11 @@ namespace ExperisChallenge
                 }
             }
         }
-        public static List<Position> NextSteps(this List<Position> list, Position item)
-        {
-            List<Position> result = new List<Position>();
-            List<Weight> steps = item.weight.OrderBy(x => x.value).ToList();
-            foreach (Weight wgt in steps)
-            {
-                int row = item.row;
-                int col = item.column;
-                if (wgt.direction == "N")
-                {
-                    row--;
-                }
-                else if(wgt.direction == "S")
-                {
-                    row++;
-                }
-                else if(wgt.direction == "E")
-                {
-                    col++;
-                }
-                else if (wgt.direction == "W")
-                {
-                    col--;
-                }
-                Position pos = list.Where(x => x.row == row && x.column == col).FirstOrDefault();
-                if (pos != null)
-                {
-                    result.Add(pos);
-                }
-            }
-            return result; 
-        }
     }
 
+    /// <summary>
+    /// Extension to list of class Weight
+    /// </summary>
     public static class WeightExtension
     {
         /// <summary>
